@@ -1,25 +1,20 @@
-#include "color.h"
-#include "ray.h"
-#include "vec3.h"
+#include "Engine.h"
+#include "Hittable.h"
+#include "HittableList.h"
+#include "Sphere.h"
 
-#include <iostream>
+Color ray_color(const Ray& r, const Hittable& world)
+{
+  HitRecord rec;
 
-bool hit_sphere(const Point3& center, double radius, const Ray& r) {
-    Vec3 oc = center - r.Origin();
-    auto a = Dot(r.Direction(), r.Direction());
-    auto b = -2.0 * Dot(r.Direction(), oc);
-    auto c = Dot(oc, oc) - radius*radius;
-    auto discriminant = b*b - 4*a*c;
-    return (discriminant >= 0);
-}
+  if (world.Hit(r, Interval(0, infinity), rec))
+  {
+    return 0.5 * (rec.normal + Color(1,1,1));
+  }
 
-Color ray_color(const Ray& r) {
-    if (hit_sphere(Point3(0,0,-1), 0.5, r))
-        return Color(1, 0, 0);
-
-    Vec3 unit_direction = Normalize(r.Direction());
-    auto a = 0.5*(unit_direction.Y() + 1.0);
-    return (1.0-a)*Color(1.0, 1.0, 1.0) + a*Color(0.5, 0.7, 1.0);
+  Vec3 unit_direction = Normalize(r.Direction());
+  auto a = 0.5*(unit_direction.Y() + 1.0);
+  return (1.0-a)*Color(1.0, 1.0, 1.0) + a*Color(0.5, 0.7, 1.0);
 }
 
 
@@ -33,6 +28,13 @@ int main() {
     // Calculate the image height, and ensure that it's at least 1.
     int image_height = int(image_width / aspect_ratio);
     image_height = (image_height < 1) ? 1 : image_height;
+
+    // World
+
+    HittableList world;
+
+    world.Add(std::make_shared<Sphere>(Point3(0,0,-1), 0.5));
+    world.Add(std::make_shared<Sphere>(Point3(0,-100.5,-1), 100));
 
     // Camera
 
@@ -65,7 +67,7 @@ int main() {
             auto ray_direction = pixel_center - camera_center;
             Ray r(camera_center, ray_direction);
 
-            Color pixel_color = ray_color(r);
+            Color pixel_color = ray_color(r, world);
             WriteColor(std::cout, pixel_color);
         }
     }
