@@ -12,19 +12,26 @@ public:
 
     Interval(double min, double max) : min(min), max(max) {}
 
-    double size() const
+    double Size() const
     {
         return max - min;
     }
 
-    bool contains(double x) const
+    bool Contains(double x) const
     {
         return min <= x && x <= max;
     }
 
-    bool surrounds(double x) const
+    bool Surrounds(double x) const
     {
         return min < x && x < max;
+    }
+
+    double Clamp(double x) const
+    {
+        if (x < min) return min;
+        if (x > max) return max;
+        return x;
     }
 
     static const Interval empty, universe;

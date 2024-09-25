@@ -30,11 +30,11 @@ public:
     // Find the nearest root that lies in the acceptable range.
     auto root = (h - sqrtd) / a;
 
-    if (!rayT.surrounds(root))
+    if (!rayT.Surrounds(root))
     {
       root = (h + sqrtd) / a;
   
-      if (!rayT.surrounds(root))
+      if (!rayT.Surrounds(root))
       {
         return false;
       }
@@ -43,7 +43,7 @@ public:
     rec.t = root;
     rec.p = r.At(rec.t);
     Vec3 outwardNormal = (rec.p - center) / radius;
-    rec.setFaceNormal(r, outwardNormal);
+    rec.SetFaceNormal(r, outwardNormal);
 
     return true;
   }

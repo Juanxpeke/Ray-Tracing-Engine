@@ -12,7 +12,7 @@ struct HitRecord
   double t;
   bool frontFace;
 
-  void setFaceNormal(const Ray& r, const Vec3& outwardNormal)
+  void SetFaceNormal(const Ray& r, const Vec3& outwardNormal)
   {
     // Sets the hit record normal vector.
     // NOTE: the parameter `outward_normal` is assumed to have unit length.
