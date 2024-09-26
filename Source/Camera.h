@@ -11,6 +11,7 @@ public:
   double aspectRatio     = 1.0;  // Ratio of image width over height
   int    imageWidth      = 100;  // Rendered image width in pixel count
   int    samplesPerPixel = 10;   // Count of random samples for each pixel
+  int    maxDepth        = 10;   // Maximum number of ray bounces into scene
 
   void Render(const Hittable& world)
   {
@@ -28,7 +29,7 @@ public:
         for (int sample = 0; sample < samplesPerPixel; sample++)
         {
           Ray r = GetRay(i, j);
-          pixelColor += RayColor(r, world);
+          pixelColor += RayColor(r, maxDepth, world);
         }
 
         WriteColor(std::cout, pixelSamplesScale * pixelColor);
@@ -97,17 +98,25 @@ private:
     return Vec3(RandomDouble() - 0.5, RandomDouble() - 0.5, 0);
   }
 
-  Color RayColor(const Ray& r, const Hittable& world) const
+  Color RayColor(const Ray& r, int depth, const Hittable& world) const
   {
+    // If we've exceeded the ray bounce limit, no more light is gathered
+    if (depth <= 0)
+    {
+      return Color(0, 0, 0);
+    }
+
     HitRecord rec;
 
-    if (world.Hit(r, Interval(0, infinity), rec))
+    // Choose 0.001 as minimum t value to solve shadow acne
+    if (world.Hit(r, Interval(0.001, infinity), rec))
     {
-      return 0.5 * (rec.normal + Color(1,1,1));
+      Vec3 direction = LambertianSphere(rec.normal);
+      return 0.5 * RayColor(Ray(rec.p, direction), depth - 1, world);
     }
 
     Vec3 normalizedDirection = Normalize(r.Direction());
-    auto a = 0.5*(normalizedDirection.Y() + 1.0);
+    auto a = 0.5 * (normalizedDirection.Y() + 1.0);
 
     return (1.0 - a) * Color(1.0, 1.0, 1.0) + a * Color(0.5, 0.7, 1.0);
   }

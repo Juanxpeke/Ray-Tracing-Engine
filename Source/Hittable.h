@@ -14,8 +14,8 @@ struct HitRecord
 
   void SetFaceNormal(const Ray& r, const Vec3& outwardNormal)
   {
-    // Sets the hit record normal vector.
-    // NOTE: the parameter `outward_normal` is assumed to have unit length.
+    // Sets the hit record normal vector
+    // NOTE: the parameter `outward_normal` is assumed to have unit length
 
     frontFace = Dot(r.Direction(), outwardNormal) < 0;
     normal = frontFace ? outwardNormal : -outwardNormal;

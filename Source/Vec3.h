@@ -52,6 +52,17 @@ public:
   {
     return e[0]*e[0] + e[1]*e[1] + e[2]*e[2];
   }
+
+  static Vec3 Random()
+  {
+    return Vec3(RandomDouble(), RandomDouble(), RandomDouble());
+  }
+
+  static Vec3 Random(double min, double max)
+  {
+    return Vec3(RandomDouble(min, max), RandomDouble(min, max), RandomDouble(min, max));
+  }
+
 };
 
 // Point3 is just an alias for vec3, but useful for geometric clarity in the code
@@ -112,6 +123,39 @@ inline Vec3 Cross(const Vec3& u, const Vec3& v)
 inline Vec3 Normalize(const Vec3& v)
 {
   return v / v.Length();
+}
+
+inline Vec3 RandomNormalizedVector()
+{
+  while (true)
+  {
+    auto p = Vec3::Random(-1, 1);
+    auto lenSq = p.LengthSquared();
+
+    if (1e-160 < lenSq && lenSq <= 1)
+    {
+      return p / sqrt(lenSq);
+    }
+  }
+}
+
+inline Vec3 RandomOnHemisphere(const Vec3& normal)
+{
+  Vec3 onUnitSphere = RandomNormalizedVector();
+
+  if (Dot(onUnitSphere, normal) > 0.0) // In the same hemisphere as the normal
+  {
+    return onUnitSphere;
+  }
+  else
+  {
+    return -onUnitSphere;
+  }
+}
+
+inline Vec3 LambertianSphere(const Vec3& normal)
+{
+  return normal + RandomNormalizedVector(); // P + normal + random - P
 }
 
 #endif // VEC3_H
