@@ -165,9 +165,17 @@ inline Vec3 LambertianSphere(const Vec3& normal)
   return normal + RandomNormalizedVector(); // P + normal + random - P
 }
 
-inline Vec3 Reflect(const Vec3& v, const Vec3& n)
+inline Vec3 Reflect(const Vec3& vector, const Vec3& normal)
 {
-  return v - 2 * Dot(v, n) * n;
+  return vector - 2 * Dot(vector, normal) * normal;
+}
+
+inline Vec3 Refract(const Vec3& normalizedVector, const Vec3& normal, double etaOverEtaPrime)
+{
+  auto cosTheta = std::fmin(Dot(-normalizedVector, normal), 1.0);
+  Vec3 rOutPerp =  etaOverEtaPrime * (normalizedVector + cosTheta * normal);
+  Vec3 rOutParallel = -std::sqrt(std::fabs(1.0 - rOutPerp.LengthSquared())) * normal;
+  return rOutPerp + rOutParallel;
 }
 
 #endif // VEC3_H
