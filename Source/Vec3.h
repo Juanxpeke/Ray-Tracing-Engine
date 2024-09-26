@@ -53,6 +53,13 @@ public:
     return e[0]*e[0] + e[1]*e[1] + e[2]*e[2];
   }
 
+  bool NearZero() const
+  {
+    // Return true if the vector is close to zero in all dimensions
+    auto s = 1e-8;
+    return (std::fabs(e[0]) < s) && (std::fabs(e[1]) < s) && (std::fabs(e[2]) < s);
+  }
+
   static Vec3 Random()
   {
     return Vec3(RandomDouble(), RandomDouble(), RandomDouble());
@@ -120,7 +127,7 @@ inline Vec3 Cross(const Vec3& u, const Vec3& v)
               u.e[0] * v.e[1] - u.e[1] * v.e[0]);
 }
 
-inline Vec3 Normalize(const Vec3& v)
+inline Vec3 Normalized(const Vec3& v)
 {
   return v / v.Length();
 }
@@ -156,6 +163,11 @@ inline Vec3 RandomOnHemisphere(const Vec3& normal)
 inline Vec3 LambertianSphere(const Vec3& normal)
 {
   return normal + RandomNormalizedVector(); // P + normal + random - P
+}
+
+inline Vec3 Reflect(const Vec3& v, const Vec3& n)
+{
+  return v - 2 * Dot(v, n) * n;
 }
 
 #endif // VEC3_H

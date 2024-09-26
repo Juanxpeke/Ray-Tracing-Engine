@@ -5,10 +5,13 @@
 
 #include "Ray.h"
 
+class Material;
+
 struct HitRecord
 {
   Point3 p;
   Vec3 normal;
+  std::shared_ptr<Material> material;
   double t;
   bool frontFace;
 

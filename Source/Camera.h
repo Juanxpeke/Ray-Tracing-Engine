@@ -4,6 +4,7 @@
 #define CAMERA_H
 
 #include "Hittable.h"
+#include "Material.h"
 
 class Camera
 {
@@ -111,11 +112,16 @@ private:
     // Choose 0.001 as minimum t value to solve shadow acne
     if (world.Hit(r, Interval(0.001, infinity), rec))
     {
-      Vec3 direction = LambertianSphere(rec.normal);
-      return 0.5 * RayColor(Ray(rec.p, direction), depth - 1, world);
+      Ray scattered;
+      Color attenuation;
+      if (rec.material->Scatter(r, rec, attenuation, scattered))
+      {
+        return attenuation * RayColor(scattered, depth - 1, world);
+      }
+      return Color(0, 0, 0);
     }
 
-    Vec3 normalizedDirection = Normalize(r.Direction());
+    Vec3 normalizedDirection = Normalized(r.Direction());
     auto a = 0.5 * (normalizedDirection.Y() + 1.0);
 
     return (1.0 - a) * Color(1.0, 1.0, 1.0) + a * Color(0.5, 0.7, 1.0);
