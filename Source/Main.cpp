@@ -27,5 +27,10 @@ int main()
   cam.samplesPerPixel = 100;
   cam.maxDepth = 50;
 
+  cam.vFov     = 90;
+  cam.lookFrom = Point3(-2, 2, 1);
+  cam.lookAt   = Point3(0, 0, -1);
+  cam.vUp      = Vec3(0, 1, 0);
+
   cam.Render(world);
 }

@@ -14,6 +14,11 @@ public:
   int    samplesPerPixel = 10;   // Count of random samples for each pixel
   int    maxDepth        = 10;   // Maximum number of ray bounces into scene
 
+  double vFov            = 90;              // Vertical view angle (field of view)
+  Point3 lookFrom        = Point3(0,0,0);   // Point camera is looking from
+  Point3 lookAt          = Point3(0,0,-1);  // Point camera is looking at
+  Vec3   vUp             = Vec3(0,1,0);     // Camera-relative "up" direction
+
   void Render(const Hittable& world)
   {
     Initialize();
@@ -47,6 +52,7 @@ private:
   Point3 pixel00Loc;           // Location of pixel 0, 0
   Vec3   pixelDeltaU;          // Offset to pixel to the right
   Vec3   pixelDeltaV;          // Offset to pixel below
+  Vec3   u, v, w;              // Camera frame basis vectors
 
   void Initialize()
   {
@@ -55,25 +61,32 @@ private:
 
     pixelSamplesScale = 1.0 / samplesPerPixel;
 
-    center = Point3(0, 0, 0);
+    center = lookFrom;
 
     // Determine viewport dimensions
-    auto focal_length = 1.0;
-    auto viewport_height = 2.0;
-    auto viewport_width = viewport_height * (double(imageWidth) / imageHeight);
+    auto focalLength = (lookFrom - lookAt).Length();
+
+    auto theta = DegToRad(vFov);
+    auto h = std::tan(theta / 2);
+    auto viewportHeight = 2 * h * focalLength;
+    auto viewportWidth = viewportHeight * (double(imageWidth) / imageHeight);
+
+    // Calculate the u,v,w unit basis vectors for the camera coordinate frame
+    w = Normalized(lookFrom - lookAt);
+    u = Normalized(Cross(vUp, w));
+    v = Cross(w, u);
 
     // Calculate the vectors across the horizontal and down the vertical viewport edges
-    auto viewportU = Vec3(viewport_width, 0, 0);
-    auto viewportV = Vec3(0, -viewport_height, 0);
+    Vec3 viewportU = viewportWidth * u;    // Vector across viewport horizontal edge
+    Vec3 viewportV = viewportHeight * -v;  // Vector down viewport vertical edge
 
     // Calculate the horizontal and vertical delta vectors from pixel to pixel
     pixelDeltaU = viewportU / imageWidth;
     pixelDeltaV = viewportV / imageHeight;
 
     // Calculate the location of the upper left pixel
-    auto viewport_upper_left =
-    center - Vec3(0, 0, focal_length) - viewportU / 2 - viewportV / 2;
-    pixel00Loc = viewport_upper_left + 0.5 * (pixelDeltaU + pixelDeltaV);
+    auto viewportUpperLeft = center - (focalLength * w) - viewportU / 2 - viewportV / 2;
+    pixel00Loc = viewportUpperLeft + 0.5 * (pixelDeltaU + pixelDeltaV);
   }
 
   Ray GetRay(int i, int j) const
