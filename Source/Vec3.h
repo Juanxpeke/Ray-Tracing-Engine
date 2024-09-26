@@ -132,6 +132,19 @@ inline Vec3 Normalized(const Vec3& v)
   return v / v.Length();
 }
 
+inline Vec3 RandomNormalized2DVector()
+{
+  while (true)
+  {
+    auto p = Vec3(RandomDouble(-1, 1), RandomDouble(-1, 1), 0);
+
+    if (p.LengthSquared() < 1)
+    {
+      return p;
+    }
+  }
+}
+
 inline Vec3 RandomNormalizedVector()
 {
   while (true)
